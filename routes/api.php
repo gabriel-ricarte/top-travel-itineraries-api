@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/post/titles', [PostController::class, 'createTitles']);
-Route::get('/post/body/{title}', [PostController::class, 'createPost']);
-Route::get('/posts', [PostController::class, 'frontPage']);
-Route::get('/countries', [CategoryController::class, 'countries']);
+Route::get('/country', [LocationController::class, 'countriesFromLatinAmerica']);
+Route::get('/country/{country}/cities', [LocationController::class, 'citiesFromCountry']);
+
+Route::get('/country/{country}/cities/{city}/touristic-point', [LocationController::class, 'touristicPointsFromCity']);
+Route::get('/country/{country}/cities/{city}/touristic-point/{location}', [LocationController::class, 'articleFromTouristicPoint']);
+Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);

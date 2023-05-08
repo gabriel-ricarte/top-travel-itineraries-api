@@ -22,4 +22,7 @@ Route::get('/country/{country}/cities', [LocationController::class, 'citiesFromC
 
 Route::get('/country/{country}/cities/{city}/touristic-point', [LocationController::class, 'touristicPointsFromCity']);
 Route::get('/country/{country}/cities/{city}/touristic-point/{location}', [LocationController::class, 'articleFromTouristicPoint']);
+Route::post('/images', [LocationController::class, 'imagesFromArticle']);
+Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);
+
 Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);

@@ -9,6 +9,8 @@ class Language extends Model
 {
     use HasFactory;
 
+    protected $table = 'languages';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -16,7 +18,7 @@ class Language extends Model
      */
     protected $fillable = [
         'name',
-        'iso3Code',
+        'iso3',
         'isActive'
     ];
 }

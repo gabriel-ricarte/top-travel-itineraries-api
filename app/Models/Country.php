@@ -16,6 +16,8 @@ class Country extends Model
      */
     protected $fillable = [
         'name',
+        'iso3',
+        'languageId',
         'isActive'
     ];
 }

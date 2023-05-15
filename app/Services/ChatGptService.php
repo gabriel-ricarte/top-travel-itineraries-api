@@ -133,6 +133,61 @@ class ChatGptService
     }
 
     /**
+     * Retrieve all languages supported by ChatGPT
+     * 
+     * @return object
+     */
+    public function getAllSupportedLanguages(): object
+    {
+        $response = $this->client->request('POST', '', [
+            'json' => [
+                'model' => $this->chatGptModel,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => "Me dê a lista dos 16 idiomas mais comuns suportados pelo ChatGPT em um objeto JSON com os seguintes atributos: 'language' e 'iso3Code', sempre dentro da propriedade 'languages',e no atributo language escreva o nome do idioma na lingua do idioma"
+                    ]
+                ],
+            ],
+        ]);
+    
+        $responseBody = $response->getBody()->getContents();
+        $responseObj = json_decode( $responseBody);
+        $responseFromAssistant = $this->retrieveCompletion($responseObj);
+
+        return $responseFromAssistant;
+    }
+
+    /**
+     * Retrieve all countries by language from ChatGPT
+     * @var string $language
+     * 
+     * @return object
+     */
+    public function getAllCountriesByLanguage(string $language): object
+    {
+        $response = $this->client->request('POST', '', [
+            'json' => [
+                'model' => $this->chatGptModel,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => "dê-me a lista de todos os países da américa latina como um formato json com o objeto 
+                        dos seguintes atributos name, iso3Code a sempre dentro dos países e no atributo name escreva o nome do 
+                        pais na lingua {$language}"
+                    ]
+                ],
+            ],
+        ]);
+    
+        $responseBody = $response->getBody()->getContents();
+        $responseObj = json_decode( $responseBody);
+        $responseFromAssistant = $this->retrieveCompletion($responseObj);
+
+        return $responseFromAssistant;
+    }
+
+    /**
      * Retrieve reponse from chat completion
      * @var Object $responseObj
      * 

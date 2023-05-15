@@ -51,4 +51,30 @@ class LocationController extends Controller
 
        return $touristicPointsArticles;
     }
+
+   /**
+     * Populates the database with the countries from ChatGPT
+     * 
+     * @return void
+     */
+    public function setupCountries(string $language) {
+      $languageId = Language::where('name', $language)->get();
+      echo '<pre>';
+      print_r( $languageId );
+      echo '</pre>';
+      die();
+      $countries = $this->chatGptService->getAllCountriesByLanguage($language);
+
+      foreach ($countries->countries as $key => $value) {
+          Country::create([
+            'name' => strtolower($value->name),
+            'iso3' => strtolower($value->iso3),
+            'languageId',
+            'isActive' => true
+          ]);
+      }
+
+      return response('Countries are created!', 201)
+                ->header('Content-Type', 'application/json');
+  }
 }

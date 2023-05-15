@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\LanguageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,3 +27,9 @@ Route::post('/images', [LocationController::class, 'imagesFromArticle']);
 Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);
 
 Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);
+
+
+Route::prefix('config')->group(function () {
+    Route::get('/language/setup', [LanguageController::class, 'setupLanguages']);
+    Route::get('/country/setup', [LocationController::class, 'setupCountries']);
+});

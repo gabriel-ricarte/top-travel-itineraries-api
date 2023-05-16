@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\City;
 use App\Services\ChatGptService;
 use App\Services\ImageGeneratorService;
 use Illuminate\Http\Request;
+use App\Models\Language;
+use App\Models\Country;
 
 class LocationController extends Controller
 {
@@ -57,19 +60,53 @@ class LocationController extends Controller
      * 
      * @return void
      */
-    public function setupCountries(string $language) {
-      $languageId = Language::where('name', $language)->get();
-      echo '<pre>';
-      print_r( $languageId );
-      echo '</pre>';
-      die();
-      $countries = $this->chatGptService->getAllCountriesByLanguage($language);
-
+    public function setupCountries(Request $u) {
+      $u = $u->validate([
+         "language" => "required",
+     ]);
+      
+     $language = Language::where('name', $u['language'])->first();
+     $languageId= $language->id;
+      try {
+         $countries = $this->chatGptService->getAllCountriesByLanguage($u['language']);
+      } catch (\Throwable $th) {
+         throw new \Exception("MALDITO CHATGPT");
+      }    
+      
       foreach ($countries->countries as $key => $value) {
           Country::create([
             'name' => strtolower($value->name),
-            'iso3' => strtolower($value->iso3),
-            'languageId',
+            'iso3' => strtolower($value->iso3Code),
+            'languageId'=> $languageId,
+            'isActive' => true
+          ]);
+      }
+
+      return response('Countries are created!', 201)
+                ->header('Content-Type', 'application/json');
+  }
+
+  public function setupCities(Request $u) {
+      $u = $u->validate([
+         "language" => "required",
+         "country" => "required",
+     ]);
+      
+      $language = Language::where('name', $u['language'])->first();
+      $languageId= $language->id;
+      try {
+         $cities = $this->chatGptService->getAllCitiesByLanguage($u['country'],$u['language']);
+      } catch (\Throwable $th) {
+         throw new \Exception("MALDITO CHATGPT");
+      }    
+      foreach ($cities->cities as $key => $value) {
+         $country = Country::where('iso3', $value->iso3Code)->first();
+         $countryId = $country->id;
+        
+          City::create([
+            'name' => strtolower($value->name),
+            'countryId' => $countryId,
+            'languageId'=> $languageId,
             'isActive' => true
           ]);
       }

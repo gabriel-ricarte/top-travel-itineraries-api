@@ -29,7 +29,6 @@ Route::get('/country/{country}/cities/{city}/touristic-point-articles', [Locatio
 Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);
 
 
-Route::prefix('config')->group(function () {
     Route::get('/language/setup', [LanguageController::class, 'setupLanguages']);
-    Route::get('/country/setup', [LocationController::class, 'setupCountries']);
-});
+    Route::post('/country/setup', [LocationController::class, 'setupCountries']);
+    Route::post('/city/setup', [LocationController::class, 'setupCities']);

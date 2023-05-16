@@ -172,9 +172,24 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "dê-me a lista de todos os países da américa latina como um formato json com o objeto 
-                        dos seguintes atributos name, iso3Code a sempre dentro dos países e no atributo name escreva o nome do 
-                        pais na lingua {$language}"
+                        'content' => "dê-me a lista de todos os países da américa latina como um formato json com o objeto dos seguintes atributos name e iso3Code sempre dentro dos countries e no atributo name escreva o nome do pais na lingua {$language}
+                        tome isso como exemplo:
+                        {
+                          countries: [
+                            {
+                              name: Argentina,
+                              iso3Code: ARG
+                            },
+                            {
+                              name: Brasil,
+                              iso3Code: BRA
+                            },
+                            {
+                              name: Chile,
+                              iso3Code: CHL
+                            }
+                          ]
+                        }"
                     ]
                 ],
             ],
@@ -183,6 +198,32 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
+     
+   
+
+        return $responseFromAssistant;
+    }
+
+    public function getAllCitiesByLanguage(string $country,string $language): object
+    {
+        $response = $this->client->request('POST', '', [
+            'json' => [
+                'model' => $this->chatGptModel,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => "dê-me a lista das top 10 cidades de {$country} como um formato json com o objeto dos seguintes atributos name e iso3Code sempre dentro dos cities e no atributo name escreva o nome da cidade na lingua {$language}
+                        "
+                    ]
+                ],
+            ],
+        ]);
+    
+        $responseBody = $response->getBody()->getContents();
+        $responseObj = json_decode( $responseBody);
+        $responseFromAssistant = $this->retrieveCompletion($responseObj);
+     
+   
 
         return $responseFromAssistant;
     }

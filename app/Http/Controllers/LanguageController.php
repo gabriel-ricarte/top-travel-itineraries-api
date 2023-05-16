@@ -31,12 +31,12 @@ class LanguageController extends Controller
      */
     public function setupLanguages() {
         $languages = $this->chatGptService->getAllSupportedLanguages();
-        $isLanguageSettedUp = Language::find(1);
+        // $isLanguageSettedUp = Language::find(1);
 
-        if (!empty($isLanguageSettedUp)) {
-            return response('Languages are already created!', 200)
-                  ->header('Content-Type', 'application/json');
-        }
+        // if (!empty($isLanguageSettedUp)) {
+        //     return response('Languages are already created!', 200)
+        //           ->header('Content-Type', 'application/json');
+        // }
 
         foreach ($languages->languages as $key => $value) {
             Language::create([

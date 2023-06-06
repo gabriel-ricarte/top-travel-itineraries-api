@@ -86,6 +86,14 @@ class LocationController extends Controller
                 ->header('Content-Type', 'application/json');
   }
 
+  public function countriess(string $language) {
+   $language = Language::where('name', $language)->first();
+   $languageID = $language->id;
+   $countries = Country::where('languageId', $languageID)->get();
+   $countries = collect($countries)->pluck('name')->toArray();
+   return $countries;
+}
+
   public function setupCities(Request $u) {
       $u = $u->validate([
          "language" => "required",
@@ -114,4 +122,16 @@ class LocationController extends Controller
       return response('Countries are created!', 201)
                 ->header('Content-Type', 'application/json');
   }
+  public function Cities(string $country,string $language) {
+   $language = Language::where('name', $language)->first();
+   $languageId= $language->id;
+   $country = Country::where('name', $country)->first();
+   $countryId = $country->id;
+   $cities = City::where('languageId', $languageId)
+   ->where('countryId', $countryId)
+   ->get();
+   $cities = collect($cities)->pluck('name')->toArray();
+  
+   return $cities;
+}
 }

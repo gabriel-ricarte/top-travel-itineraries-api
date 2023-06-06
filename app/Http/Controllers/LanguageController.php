@@ -29,6 +29,11 @@ class LanguageController extends Controller
      * 
      * @return void
      */
+    public function index(){
+        $languages = Language::all();
+        $languages = collect($languages)->pluck('name')->toArray();
+        return $languages;
+    }
     public function setupLanguages() {
         $languages = $this->chatGptService->getAllSupportedLanguages();
         // $isLanguageSettedUp = Language::find(1);

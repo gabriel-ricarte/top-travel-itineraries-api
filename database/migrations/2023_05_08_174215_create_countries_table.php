@@ -18,6 +18,7 @@ return new class extends Migration
             $table->tinyInteger('isActive')->default(1);
             $table->foreignId('languageId')->default(1);
             $table->timestamps();
+            $table->unique(['name','languageId']);
         });
     }
 

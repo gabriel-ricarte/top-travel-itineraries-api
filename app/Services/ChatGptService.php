@@ -57,7 +57,7 @@ class ChatGptService
      * 
      * @return object
      */
-    public function getAllCitiesByCountry(string $country): object
+    public function getAllCitiesByCountry(string $country): array
     {
         $response = $this->client->request('POST', '', [
             'json' => [
@@ -74,6 +74,7 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
+        $responseFromAssistant = collect($responseFromAssistant)->pluck('content')->toArray();
 
         return $responseFromAssistant;
     }
@@ -83,7 +84,7 @@ class ChatGptService
      * 
      * @return object
      */
-    public function getTouristicPointsByCountryAndCity(string $city, string $country): object
+    public function getTouristicPointsByCountryAndCity(string $city, string $country): array
     {
         $response = $this->client->request('POST', '', [
             'json' => [
@@ -91,7 +92,7 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "give me the top 5 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic-points"
+                        'content' => "give me the top 9 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic-points"
                     ]
                 ],
             ],
@@ -100,6 +101,7 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
+        $responseFromAssistant = collect($responseFromAssistant)->pluck('description')->toArray();
 
         return $responseFromAssistant;
     }

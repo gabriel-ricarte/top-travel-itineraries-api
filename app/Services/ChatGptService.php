@@ -92,8 +92,8 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "give me the top 9 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic-points"
-                    ]
+                        'content' => "give me the top 6 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic_points with name, snake_case_name, description, espacial_description, location object with long and lat, categories"
+                        ]
                 ],
             ],
         ]);

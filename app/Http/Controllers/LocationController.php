@@ -8,6 +8,7 @@ use App\Services\ImageGeneratorService;
 use Illuminate\Http\Request;
 use App\Models\Language;
 use App\Models\Country;
+use App\Models\TouristicPoint;
 
 class LocationController extends Controller
 {
@@ -30,9 +31,27 @@ class LocationController extends Controller
        return $this->chatGptService->getAllCitiesByCountry($country);
     }
 
-    public function touristicPointsFromCity(string $city, string $country)
+    public function touristicPointsFromCity(string $country,string $city)
     {
-       return $this->chatGptService->getTouristicPointsByCountryAndCity($city, $country);
+      $response = $this->chatGptService->getTouristicPointsByCountryAndCity($city, $country); 
+      $city = City::where('name',$city)->first();
+      $cityId = $city->id;
+      
+     foreach ($response->touristic_points as $key => $value) {
+      
+     
+       TouristicPoint::create([
+         'name' =>$value->name,
+         'snake_case_name' =>$value->snake_case_name,
+         'cityId' => $cityId,
+         'description'=> $value->description,
+         'espacial_description'=> $value->espacial_description,
+         'latitude'=> $value->location->lat,
+        'longitude'=> $value->location->long,
+        
+       ]);
+   }
+       return $response;
     }
 
     public function articleFromTouristicPoint(array $location, string $city, string $country)

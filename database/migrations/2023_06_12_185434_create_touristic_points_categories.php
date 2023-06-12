@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('touristicPointId');
             $table->foreignId('categoryId');
             $table->timestamps();
+            
         });
     }
 

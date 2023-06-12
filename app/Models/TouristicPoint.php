@@ -20,8 +20,8 @@ class TouristicPoint extends Model
         'snake_case_name',
         'description',
         'espacial_description',
-        'lat',
-        'long',
+        'latitude',
+        'longitude',
         'cityId'
     ];
 

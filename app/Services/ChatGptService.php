@@ -84,7 +84,7 @@ class ChatGptService
      * 
      * @return object
      */
-    public function getTouristicPointsByCountryAndCity(string $city, string $country): array
+    public function getTouristicPointsByCountryAndCity(string $city, string $country): object
     {
         $response = $this->client->request('POST', '', [
             'json' => [
@@ -101,7 +101,6 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
-        $responseFromAssistant = collect($responseFromAssistant)->pluck('description')->toArray();
 
         return $responseFromAssistant;
     }
@@ -113,15 +112,13 @@ class ChatGptService
      */
     public function createArticle(array $locations, string $city, string $country)
     {
-        $locations = array_column($locations, 'name');
-        $locations = implode(', ',$locations);
-        $response = $this->client->request('POST', '', [
+       $response = $this->client->request('POST', '', [
             'json' => [
                 'model' => $this->chatGptModel,
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "give me the top 3 activities for the location inside topActivities, one url to an image from the location inside imageUrl and the description for each of this locations:{$locations} from {$city}, {$country} on a json like always inside articles, with each one of them having between 120 and 400 words description, imageUrl, topActivities, touristicPointName"
+                        'content' => "give me the top 9 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic-points"
                     ]
                 ],
             ],
@@ -130,6 +127,7 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
+        $responseFromAssistant = collect($responseFromAssistant)->pluck('description')->toArray();
 
         return $responseFromAssistant;
     }

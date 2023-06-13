@@ -14,7 +14,7 @@ class PostImage extends Model
      */
     protected $fillable = [
         'imageUrl',
-        'touristicPointId'
+        'touristic_point_id'
     ];
 
     protected $table = "images";

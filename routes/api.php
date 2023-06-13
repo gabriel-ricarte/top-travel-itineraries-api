@@ -21,12 +21,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/country', [LocationController::class, 'countriesFromLatinAmerica']);
 Route::get('/country/{country}/cities', [LocationController::class, 'citiesFromCountry']);
 
-Route::get('/country/{country}/cities/{city}/touristic-point', [LocationController::class, 'touristicPointsFromCity']);
-Route::get('/country/{country}/cities/{city}/touristic-point/{location}', [LocationController::class, 'articleFromTouristicPoint']);
+Route::get('/country/{country}/cities/{city}/touristic-point/setup', [LocationController::class, 'touristicPointsFromCity']);
 Route::post('/images', [LocationController::class, 'imagesFromArticle']);
-Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);
-
-Route::get('/country/{country}/cities/{city}/touristic-point-articles', [LocationController::class, 'articlesForTouristicPoints']);
+Route::get('/country/{country}/cities/{city}/touristic-point', [LocationController::class, 'articlesForTouristicPoints']);
 
     Route::get('/language', [LanguageController::class, 'index']);
     Route::get('/language/setup', [LanguageController::class, 'setupLanguages']);

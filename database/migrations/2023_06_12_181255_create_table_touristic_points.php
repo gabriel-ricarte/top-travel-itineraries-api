@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('touristic_points', function (Blueprint $table) {
             $table->id();
             $table->string('name', 80);
-            $table->string('snake_case_name');
+            $table->string('snake_case_name')->unique();
             $table->string('description');
             $table->string('espacial_description');
             $table->string('latitude', 30);

@@ -8,6 +8,7 @@ use App\Services\ImageGeneratorService;
 use Illuminate\Http\Request;
 use App\Models\Language;
 use App\Models\Country;
+use App\Models\PostImage;
 use App\Models\TouristicPoint;
 
 class LocationController extends Controller
@@ -37,21 +38,26 @@ class LocationController extends Controller
       $city = City::where('name',$city)->first();
       $cityId = $city->id;
       
-     foreach ($response->touristic_points as $key => $value) {
-      
-     
-       TouristicPoint::create([
-         'name' =>$value->name,
-         'snake_case_name' =>$value->snake_case_name,
-         'cityId' => $cityId,
-         'description'=> $value->description,
-         'espacial_description'=> $value->espacial_description,
-         'latitude'=> $value->location->lat,
-        'longitude'=> $value->location->long,
-        
-       ]);
-   }
-       return $response;
+      foreach ($response->touristic_points as $touristicPoint) {
+         $url = $this->imageGeneratorService->getPostImages($touristicPoint -> description);
+         $url = $url[0]->url;
+         $newTouristicPoint = TouristicPoint::create([
+            'name' =>$touristicPoint->name,
+            'snake_case_name' =>$touristicPoint->snake_case_name,
+            'cityId' => $cityId,
+            'description'=> $touristicPoint->description,
+            'espacial_description'=> $touristicPoint->espacial_description,
+            'latitude'=> $touristicPoint->location->lat,
+            'longitude'=> $touristicPoint->location->long,
+         
+         ]);
+         PostImage::create([
+            'imageUrl'=> $url,
+            'touristic_point_id'=> $newTouristicPoint->id
+         ]);
+      }
+
+      return $response;
     }
 
     public function articleFromTouristicPoint(array $location, string $city, string $country)
@@ -65,7 +71,7 @@ class LocationController extends Controller
        return $this->imageGeneratorService->getPostImages($request['description']);
     }
 
-    public function articlesForTouristicPoints(string $city, string $country)
+    public function articlesForTouristicPointsSetup(string $city, string $country)
     {
        $touristicPoints = $this->touristicPointsFromCity($city, $country);
 
@@ -74,6 +80,13 @@ class LocationController extends Controller
        return $touristicPointsArticles;
     }
 
+    public function articlesForTouristicPoints(string $country, string $city)
+    {
+      $city = City::where('name',strtolower($city))->first();
+      $cityId = $city->id;
+      $touristicPointsArticles = TouristicPoint::where('cityId',$cityId)->with('postImages')->get();
+       return $touristicPointsArticles;
+    }
    /**
      * Populates the database with the countries from ChatGPT
      * 

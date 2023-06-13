@@ -36,8 +36,8 @@ class ImageGeneratorService
         $response = $this->client->request('POST', '', [
             'json' => [
                 'prompt' => $imageDescription,
-                'n' => 3,
-                'size' => '256x256'
+                'n' => 1,
+                'size' => '512x512'
             ],
         ]);
     

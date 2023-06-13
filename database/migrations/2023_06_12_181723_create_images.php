@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
-            $table->string('imageUrl')->unique();
-            $table->foreignId('touristicPointId');
+            $table->text('imageUrl');
+            $table->foreignId('touristic_point_id');
             $table->timestamps();
         });
     }

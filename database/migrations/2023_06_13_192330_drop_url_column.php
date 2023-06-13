@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('touristic_points_categories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('touristic_point_id');
-            $table->foreignId('categoryId');
-            $table->timestamps();
-            
+        Schema::table('touristic_points', function (Blueprint $table) {
+            $table->dropColumn('url');
         });
     }
 
@@ -25,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('touristic_points_categories');
+        //
     }
 };

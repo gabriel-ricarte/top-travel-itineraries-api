@@ -92,7 +92,7 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "give me the top 6 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic_points with name, snake_case_name, description, espacial_description, location object with long and lat, categories"
+                        'content' => "give me the top 5 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic_points with name, snake_case_name, description, espacial_description, location object with long and lat, categories"
                         ]
                 ],
             ],
@@ -110,7 +110,7 @@ class ChatGptService
      * 
      * @return object|string
      */
-    public function createArticle(array $locations, string $city, string $country)
+    public function createArticle(string $locations, string $city, string $country)
     {
        $response = $this->client->request('POST', '', [
             'json' => [
@@ -118,7 +118,7 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "give me the top 9 touristic points from {$city} in {$country} as a json format sorted ascendent alphabetically always inside touristic-points"
+                        'content' =>"talk about the touristc poitn {$locations},{$city} in {$country} as a json format with name,snake_case_name(must be based in {$locations}),location{city,country},description(5 paragrahps),activities,hours,admission"
                     ]
                 ],
             ],
@@ -127,7 +127,9 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
-        $responseFromAssistant = collect($responseFromAssistant)->pluck('description')->toArray();
+        if(gettype($responseFromAssistant)=='string'){
+            $responseFromAssistant = $this->createArticle($locations,$city,$country);
+        }
 
         return $responseFromAssistant;
     }
@@ -145,7 +147,7 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "Me dê a lista dos 16 idiomas mais comuns suportados pelo ChatGPT em um objeto JSON com os seguintes atributos: 'language' e 'iso3Code', sempre dentro da propriedade 'languages',e no atributo language escreva o nome do idioma na lingua do idioma"
+                        'content' => "qual as linguas suportadas pelo chat gpt e seus respectivos codigos e de suas variantes como pt-br e en-us em um objeto JSON com os seguintes atributos: 'language' e 'iso3Code' e 'code', sempre dentro da propriedade 'languages'.(no minimo 20 linguas e pelo menos 10 variantes )"                
                     ]
                 ],
             ],
@@ -158,6 +160,47 @@ class ChatGptService
         return $responseFromAssistant;
     }
 
+    public function getText($language): object
+    {
+        $response = $this->client->request('POST', '', [
+            'json' => [
+                'model' => $this->chatGptModel,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => "Nosso site de roteiros de viagem é a ferramenta perfeita para ajudá-<br/>lo a planejar
+                        sua próxima aventura. Com diversas funcionalidades<br/> disponíveis, como criar uma
+                        conta, salvar roteiros personalizados e<br/> visualizá-los em um calendário, você terá 
+                        tudo o que precisa para <br/>organizar sua viagem de maneira eficiente e prática. Além 
+                        disso,<br/> nosso site oferece recomendações personalizadas para tornar sua<br/> viagem 
+                        ainda mais especial.<br/>
+                        <br/>
+                        Não perca mais tempo navegando por diferentes sites e aplicativos. <br/>Com nosso 
+                        site, você terá todas as informações que precisa em um <br/>só lugar. Comece criando 
+                        sua conta e aproveite todos os recursos <br/>disponíveis para criar o roteiro perfeito 
+                        para a sua viagem dos <br/>sonhos. Não espere mais, comece a planejar sua próxima 
+                        aventura<br/> agora mesmo!<br/>
+,Countries
+,Cities
+,Crie um roteiro de viagem
+Home,
+About Us,
+Destination,
+Tour,
+pegue os textos acima e faça a trazução para {$language} sem altera a tag <br/>
+coloque em um objeto JSON nos seguintes atributos respctivamente
+banner,country,city,travel,home,about,destination,tour"
+                        ]
+                ],
+            ],
+        ]);
+    
+        $responseBody = $response->getBody()->getContents();
+        $responseObj = json_decode( $responseBody);
+        $responseFromAssistant = $this->retrieveCompletion($responseObj);
+
+        return $responseFromAssistant;
+    }
     /**
      * Retrieve all countries by language from ChatGPT
      * @var string $language
@@ -212,7 +255,7 @@ class ChatGptService
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "dê-me a lista das top 10 cidades de {$country} como um formato json com o objeto dos seguintes atributos name e iso3Code sempre dentro dos cities e no atributo name escreva o nome da cidade na lingua {$language}
+                        'content' => "dê-me a lista das top 10 cidades de {$country} (nao repita nomes de cidades)como um formato json com o objeto dos seguintes atributos name dentro de cities e no atributo escrava o name na lingua {$language}
                         "
                     ]
                 ],
@@ -222,11 +265,42 @@ class ChatGptService
         $responseBody = $response->getBody()->getContents();
         $responseObj = json_decode( $responseBody);
         $responseFromAssistant = $this->retrieveCompletion($responseObj);
+        if(gettype($responseFromAssistant)=='string'){
+            $responseFromAssistant = $this->getAllCitiesByLanguage( $country, $language);
+        }
      
    
 
         return $responseFromAssistant;
     }
+    public function getAllCitiesFromAllCountriesByLanguage(string $language): object
+    {
+        $response = $this->client->request('POST', '', [
+            'json' => [
+                'model' => $this->chatGptModel,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => "dê-me a lista das top 10 cidades de cada um dos seguintes paisesvenezuela,uruguay,trinidad and tobago,suriname,puerto rico,peru,paraguay,panama,nicaragua,mexico,jamaica,honduras,haiti,argentina,bolivia,brazil,chile,colombia,guatemalael salvador,ecuador,dominican republic,cuba,costa rica como um formato json com o objeto dos seguintes atributos name e iso3Code sempre dentro dos cities e no atributo name escreva o nome da cidade na lingua english"
+                    ]
+                ],
+            ],
+        ]);
+    
+        $responseBody = $response->getBody()->getContents();
+        $responseObj = json_decode( $responseBody);
+        $responseFromAssistant = $this->retrieveCompletion($responseObj);
+        dd($responseFromAssistant);
+        if(gettype($responseFromAssistant)=='string'){
+            $responseFromAssistant = $this->getAllCitiesFromAllCountriesByLanguage($language);
+        }
+        
+     
+   
+
+        return $responseFromAssistant;
+    }
+    
 
     /**
      * Retrieve reponse from chat completion

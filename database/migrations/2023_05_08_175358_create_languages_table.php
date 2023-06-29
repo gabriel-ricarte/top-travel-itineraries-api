@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 80)->unique();
             $table->string('iso3', 80);
+            $table->string('code', 80);
             $table->tinyInteger('isActive')->default(1);
             $table->timestamps();
         });

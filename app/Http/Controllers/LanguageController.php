@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Language;
 
 
+
 class LanguageController extends Controller
 {
     private ChatGptService $chatGptService;
@@ -47,6 +48,7 @@ class LanguageController extends Controller
             Language::create([
                 'name' => strtolower($value->language),
                 'iso3' => $value->iso3Code,
+                'code'=>$value->code,
                 'isActive' => true
             ]);
         }

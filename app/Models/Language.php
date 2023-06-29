@@ -19,6 +19,7 @@ class Language extends Model
     protected $fillable = [
         'name',
         'iso3',
-        'isActive'
+        'code',
+        'isActive',
     ];
 }

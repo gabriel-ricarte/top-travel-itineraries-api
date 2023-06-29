@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\City;
 use App\Services\ChatGptService;
 use App\Services\ImageGeneratorService;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\Language;
 use App\Models\Country;
 use App\Models\PostImage;
+use Illuminate\Support\Facades\Storage;
 use App\Models\TouristicPoint;
 
 class LocationController extends Controller
@@ -51,8 +53,10 @@ class LocationController extends Controller
             'longitude'=> $touristicPoint->location->long,
          
          ]);
+         Storage::disk('public')->put($touristicPoint->snake_case_name.'.png', file_get_contents($url));
+         $imageUrl = asset('storage/'.$touristicPoint->snake_case_name.'.png');
          PostImage::create([
-            'imageUrl'=> $url,
+            'imageUrl'=> $imageUrl,
             'touristic_point_id'=> $newTouristicPoint->id
          ]);
       }
@@ -60,9 +64,39 @@ class LocationController extends Controller
       return $response;
     }
 
-    public function articleFromTouristicPoint(array $location, string $city, string $country)
+    public function articleFromTouristicPointSetup(string $country, string $city,string $location)
     {
-       return $this->chatGptService->createArticle($location, $city, $country);
+     
+      $response =$this->chatGptService->createArticle($location, $city, $country);
+      $city = City::where('name',$city)->first();
+      $cityId = $city->id;
+      $country = Country::where('name',$country)->first();
+      $countryId = $country->id;
+      $description = implode('\n',$response->description);
+      $activities = implode('\n',$response->activities);
+      
+      Article::create([
+        'name'=>$response->name,
+        'snake_case_name'=>$response->snake_case_name,
+        'description'=>$description,
+        'activities'=>$activities,
+        'hours'=>$response->hours,
+        'admission'=>$response->admission,
+        'countryId'=>$countryId,
+        'cityId'=>$cityId,
+      ]);
+       return $response ;
+    }
+    public function articleFromTouristicPoint(string $touristc_point)
+    {
+      $response = Article::where("snake_case_name",$touristc_point)->first();
+      if(empty($response)){
+         $response = TouristicPoint::where("snake_case_name",$touristc_point)->first();
+         $city = City::where('id',$response->cityId)->first();
+         $country = Country::where('id',$city->countryId)->first()->name;
+         $response = $this->articleFromTouristicPointSetup($country,$city->name,$touristc_point);
+      }
+       return $response ;
     }
 
     public function imagesFromArticle(Request $request)
@@ -97,7 +131,7 @@ class LocationController extends Controller
          "language" => "required",
      ]);
       
-     $language = Language::where('name', $u['language'])->first();
+     $language = Language::where('code', $u['language'])->first();
      $languageId= $language->id;
       try {
          $countries = $this->chatGptService->getAllCountriesByLanguage($u['language']);
@@ -119,9 +153,13 @@ class LocationController extends Controller
   }
 
   public function countriess(string $language) {
-   $language = Language::where('name', $language)->first();
-   $languageID = $language->id;
-   $countries = Country::where('languageId', $languageID)->get();
+   $language = Language::where("code",$language)->first();
+   if(empty($language)){
+            $language = Language::first();
+   }
+   $languageId = $language->id;
+   $countries = Country::where('languageId', $languageId)->get();
+   
    $countries = collect($countries)->pluck('name')->toArray();
    return $countries;
 }
@@ -134,13 +172,14 @@ class LocationController extends Controller
       
       $language = Language::where('name', $u['language'])->first();
       $languageId= $language->id;
+      $languageName=$language->name;
       try {
-         $cities = $this->chatGptService->getAllCitiesByLanguage($u['country'],$u['language']);
+         $cities = $this->chatGptService->getAllCitiesByLanguage($u['country'],$languageName);
       } catch (\Throwable $th) {
          throw new \Exception("MALDITO CHATGPT");
       }    
       foreach ($cities->cities as $key => $value) {
-         $country = Country::where('iso3', $value->iso3Code)->first();
+         $country = Country::where('iso3', $u['country'])->first();
          $countryId = $country->id;
         
           City::create([
@@ -154,8 +193,33 @@ class LocationController extends Controller
       return response('Countries are created!', 201)
                 ->header('Content-Type', 'application/json');
   }
-  public function Cities(string $country,string $language) {
+  public function setupAllCities(string $language) {
+  
+   
    $language = Language::where('name', $language)->first();
+   $languageId= $language->id;
+   $countries = Country::all();
+
+      $cities = $this->chatGptService->getAllCitiesFromAllCountriesByLanguage($language);
+      dd($cities);
+ 
+   foreach ($cities->cities as $key => $value) {
+      $country = Country::where('iso3', $value->iso3Code)->first();
+      $countryId = $country->id;
+     
+       City::create([
+         'name' => strtolower($value->name),
+         'countryId' => $countryId,
+         'languageId'=> $languageId,
+         'isActive' => true
+       ]);
+   }
+
+   return response('Countries are created!', 201)
+             ->header('Content-Type', 'application/json');
+}
+  public function Cities(string $country,string $language) {
+   $language = Language::where('code', $language)->first();
    $languageId= $language->id;
    $country = Country::where('name', $country)->first();
    $countryId = $country->id;

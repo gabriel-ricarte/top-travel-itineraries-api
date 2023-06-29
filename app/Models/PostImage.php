@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 
 class PostImage extends Model
 {
@@ -23,4 +25,8 @@ class PostImage extends Model
     {
         return $this->belongsTo(TouristicPoint::class);
     }   
+    public function article(): HasOne
+    {
+        return $this->hasOne(Article::class);
+    } 
 }

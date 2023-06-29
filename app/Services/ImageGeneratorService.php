@@ -37,7 +37,7 @@ class ImageGeneratorService
             'json' => [
                 'prompt' => $imageDescription,
                 'n' => 1,
-                'size' => '512x512'
+                'size' => '1024x1024'
             ],
         ]);
     
